@@ -61,3 +61,10 @@
 
 - 原生 HTML/CSS/JavaScript 或其他無伺服器靜態專案。
 - 課堂作品、作品集、文件站等可由 `main` 自動部署的公開網站。
+
+### GitHub 身分驗證注意事項
+
+- GitHub connector 可讀取個人檔案不代表瀏覽器或本機 Git CLI 已具備 repository 寫入能力；執行發布前要分別確認 connector 權限、瀏覽器登入狀態和 Git push 認證。
+- 未登入時可先完成本地 workflow 與部署檔案，再交由使用者自行登入，避免索取或處理密碼、驗證碼。
+
+**未來適用範圍：** 需要同時用 GitHub 網頁設定、GitHub Actions 與本地 Git 推送的專案。
