@@ -22,3 +22,7 @@
 - `knowledge/`：願景、路線圖、決策和可重用經驗。
 
 這是前端課堂展示用模擬器；價格、品項和訂單只存在目前頁面，不會送到伺服器。
+
+## 檢查
+
+執行 `node --test tests/app.test.cjs` 可跑點餐流程回歸測試；執行 `node --check app.js` 可檢查 JavaScript 語法。測試使用 Node.js 內建模組，不需安裝依賴。
