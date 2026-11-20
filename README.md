@@ -14,15 +14,20 @@
 - 確認點單後顯示品項數與總價，並清空購物車。
 - 支援窄螢幕版面。
 
+## 發布
+
+GitHub Actions 會在推送到 `main` 時，將首頁與前端資產部署到 GitHub Pages。工作流程位於 `.github/workflows/deploy-pages.yml`。首次發布前，請在 repository 的 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。
+
+## 檢查
+
+執行 `node --test tests/app.test.cjs` 可跑點餐流程回歸測試；執行 `node --check app.js` 可檢查 JavaScript 語法。測試使用 Node.js 內建模組，不需安裝依賴。
+
 ## 檔案
 
 - `index.html`：頁面結構與內容。
 - `styles.css`：版面、視覺樣式與行動版調整。
 - `app.js`：飲品資料、客製選項、購物車與點單互動。
+- `.github/workflows/deploy-pages.yml`：Pages 自動部署工作流程。
 - `knowledge/`：願景、路線圖、決策和可重用經驗。
 
 這是前端課堂展示用模擬器；價格、品項和訂單只存在目前頁面，不會送到伺服器。
-
-## 檢查
-
-執行 `node --test tests/app.test.cjs` 可跑點餐流程回歸測試；執行 `node --check app.js` 可檢查 JavaScript 語法。測試使用 Node.js 內建模組，不需安裝依賴。

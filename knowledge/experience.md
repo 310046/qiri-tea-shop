@@ -47,3 +47,17 @@
 
 - 有篩選按鈕、購物車、分頁或其他重複操作控制項的前端介面。
 - 動態更新頁面內容時，為讀屏使用者提供明確控制項名稱與狀態提示。
+
+## 2026-11-20：為純前端專案接上 GitHub Pages
+
+### 做法與觀察
+
+- 靜態網站可用單一 GitHub Actions 工作流程部署：checkout、configure-pages、上傳 Pages artifact、deploy-pages。
+- 對不需編譯的原生前端，只把 `index.html`、JavaScript、CSS 複製到 `_site` 後上傳，避免把規劃文件與測試也公開在網站路徑中。
+- workflow 對 `main` 分支 push 與手動觸發；部署工作只給 `contents: read`、`pages: write`、`id-token: write`，並使用 `github-pages` environment。
+- 建立 workflow 還不等於網站已發布；repository Pages source 必須選 GitHub Actions，之後仍要檢查 Actions 執行結果和實際網址。
+
+### 未來可套用範圍
+
+- 原生 HTML/CSS/JavaScript 或其他無伺服器靜態專案。
+- 課堂作品、作品集、文件站等可由 `main` 自動部署的公開網站。
