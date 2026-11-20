@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3eb">
+  <title>沏日｜今日喝什麼？</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="沏日首頁"><span class="brand-mark">沏</span><span>沏日 <small>TEA FOR TODAY</small></span></a>
+    <nav aria-label="主要導覽"><a href="#menu">今日菜單</a><a href="#about">關於沏日</a></nav>
+    <a class="cart-shortcut" href="#cart">購物車 <span id="header-count">0</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">A LITTLE JOY IN EVERY CUP</p>
+        <h1>今天，<em>沏</em>一點<br>喜歡的日常。</h1>
+        <p class="hero-text">選一杯喜歡的茶，甜度冰塊都由你決定。<br>把剛剛好的小確幸，放進購物車。</p>
+        <a class="primary-link" href="#menu">看看今日菜單 <span>↘</span></a>
+      </div>
+      <div class="hero-art" aria-label="茶飲插畫" role="img">
+        <div class="sun"></div><div class="leaf leaf-one"></div><div class="leaf leaf-two"></div>
+        <div class="cup"><div class="cup-lid"></div><div class="tea"></div><div class="pearls"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="cup-label">沏日<small>TEA TIME</small></div><div class="straw"></div></div>
+        <span class="art-note">慢慢喝<br>剛剛好 ☼</span>
+      </div>
+      <div class="hero-foot"><span>HANDCRAFTED, JUST FOR YOU</span><span>01 — 06</span></div>
+    </section>
+
+    <section class="menu-section section-wrap" id="menu">
+      <div class="section-heading"><div><p class="eyebrow">FRESHLY BREWED</p><h2>今日菜單<span>MENU</span></h2></div><p>每杯都是現點現做，<br>也可以調成你喜歡的樣子。</p></div>
+      <div class="category-tabs" role="group" aria-label="飲料分類">
+        <button class="category active" data-category="全部">全部 <span>06</span></button>
+        <button class="category" data-category="純茶">純茶</button><button class="category" data-category="奶茶">奶茶</button><button class="category" data-category="果茶">果茶</button>
+      </div>
+      <div class="drink-grid" id="drink-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="order-section" id="cart">
+      <div class="section-wrap order-layout">
+        <div class="order-intro"><p class="eyebrow">YOUR LITTLE TEA PARTY</p><h2>準備好了嗎？</h2><p>選好的飲料會在這裡集合。<br>確認品項後，就完成這次點單。</p><div class="order-stamp">沏<br>日</div></div>
+        <div class="cart-panel">
+          <div class="cart-title"><h3>你的訂單</h3><span id="cart-label">0 杯飲料</span></div>
+          <div id="cart-items" class="cart-items"><div class="empty-cart"><span>☕</span><p>購物車還空空的</p><small>先挑一杯喜歡的茶吧</small></div></div>
+          <div class="cart-bottom"><div class="subtotal"><span>訂單小計</span><strong id="cart-total">$0</strong></div><button class="checkout-button" id="checkout" disabled>確認點單 <span>→</span></button><p class="checkout-note" id="checkout-note">點單完成後會顯示確認訊息</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="about-section section-wrap" id="about"><span class="about-flower">✳</span><div><p class="eyebrow">A SLOWER KIND OF HAPPY</p><h2>好茶不用趕，<br>喜歡也是。</h2></div><p>沏日相信，一杯剛剛好的茶，<br>就能讓平凡的一天多一點期待。<br>謝謝你今天來喝茶。</p></section>
+  </main>
+  <footer><a class="brand" href="#top"><span class="brand-mark">沏</span><span>沏日 <small>TEA FOR TODAY</small></span></a><span>今天也要好好喝茶。 © 2026 沏日</span></footer>
+</body>
+</html>
