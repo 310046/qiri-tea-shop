@@ -21,7 +21,7 @@ function renderMenu(){
     <label>冰塊<select class="ice">${iceOptions.map(value=>`<option>${value}</option>`).join('')}</select></label>
     <label>杯型<select class="size"><option value="中杯">中杯　+$0</option><option value="大杯">大杯　+$10</option></select></label>
     <label>配料<select class="topping">${toppingOptions.map(item=>`<option value="${item.name}" data-price="${item.price}">${item.name}${item.price?`　+$${item.price}`:''}</option>`).join('')}</select></label></div>
-    <button class="add-button" data-add="${drink.id}">加入購物車 <span>＋</span></button></article>`).join('');
+    <button class="add-button" data-add="${drink.id}" aria-label="將 ${drink.name} 加入購物車">加入購物車 <span>＋</span></button></article>`).join('');
 }
 function renderCart(){
   const totalCount=cart.reduce((sum,item)=>sum+item.quantity,0);
@@ -32,9 +32,9 @@ function renderCart(){
   document.querySelector('#checkout').disabled=cart.length===0;
   const area=document.querySelector('#cart-items');
   if(!cart.length){area.innerHTML='<div class="empty-cart"><span>☕</span><p>購物車還空空的</p><small>先挑一杯喜歡的茶吧</small></div>';return;}
-  area.innerHTML=cart.map(item=>`<div class="cart-row"><div><span class="cart-item-name">${item.name}・${item.size}</span><span class="cart-item-detail">${item.sugar} / ${item.ice} / ${item.topping}</span></div><span class="cart-item-price">${money(item.unitPrice*item.quantity)}</span><div class="quantity-control"><button data-quantity="${item.key}" data-change="-1" aria-label="減少數量">−</button><span>${item.quantity}</span><button data-quantity="${item.key}" data-change="1" aria-label="增加數量">＋</button><button class="remove-button" data-remove="${item.key}" aria-label="移除品項">×</button></div></div>`).join('');
+  area.innerHTML=cart.map(item=>`<div class="cart-row"><div><span class="cart-item-name">${item.name}・${item.size}</span><span class="cart-item-detail">${item.sugar} / ${item.ice} / ${item.topping}</span></div><span class="cart-item-price">${money(item.unitPrice*item.quantity)}</span><div class="quantity-control"><button data-quantity="${item.key}" data-change="-1" aria-label="${item.name} 減少數量">−</button><span>${item.quantity}</span><button data-quantity="${item.key}" data-change="1" aria-label="${item.name} 增加數量">＋</button><button class="remove-button" data-remove="${item.key}" aria-label="${item.name} 移除品項">×</button></div></div>`).join('');
 }
-document.querySelector('.category-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;activeCategory=button.dataset.category;document.querySelectorAll('.category').forEach(item=>item.classList.toggle('active',item===button));renderMenu();});
+document.querySelector('.category-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;activeCategory=button.dataset.category;document.querySelectorAll('.category').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});renderMenu();});
 document.querySelector('#drink-grid').addEventListener('click',event=>{
   const button=event.target.closest('[data-add]');if(!button)return;
   const card=button.closest('.drink-card');const drink=drinks.find(item=>item.id===button.dataset.add);

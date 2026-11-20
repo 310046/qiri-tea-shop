@@ -34,8 +34,8 @@
     <section class="menu-section section-wrap" id="menu">
       <div class="section-heading"><div><p class="eyebrow">FRESHLY BREWED</p><h2>今日菜單<span>MENU</span></h2></div><p>每杯都是現點現做，<br>也可以調成你喜歡的樣子。</p></div>
       <div class="category-tabs" role="group" aria-label="飲料分類">
-        <button class="category active" data-category="全部">全部 <span>06</span></button>
-        <button class="category" data-category="純茶">純茶</button><button class="category" data-category="奶茶">奶茶</button><button class="category" data-category="果茶">果茶</button>
+        <button class="category active" data-category="全部" aria-pressed="true">全部 <span>06</span></button>
+        <button class="category" data-category="純茶" aria-pressed="false">純茶</button><button class="category" data-category="奶茶" aria-pressed="false">奶茶</button><button class="category" data-category="果茶" aria-pressed="false">果茶</button>
       </div>
       <div class="drink-grid" id="drink-grid" aria-live="polite"></div>
     </section>
@@ -46,7 +46,7 @@
         <div class="cart-panel">
           <div class="cart-title"><h3>你的訂單</h3><span id="cart-label">0 杯飲料</span></div>
           <div id="cart-items" class="cart-items"><div class="empty-cart"><span>☕</span><p>購物車還空空的</p><small>先挑一杯喜歡的茶吧</small></div></div>
-          <div class="cart-bottom"><div class="subtotal"><span>訂單小計</span><strong id="cart-total">$0</strong></div><button class="checkout-button" id="checkout" disabled>確認點單 <span>→</span></button><p class="checkout-note" id="checkout-note">點單完成後會顯示確認訊息</p></div>
+          <div class="cart-bottom"><div class="subtotal"><span>訂單小計</span><strong id="cart-total">$0</strong></div><button class="checkout-button" id="checkout" disabled>確認點單 <span>→</span></button><p class="checkout-note" id="checkout-note" role="status" aria-live="polite">點單完成後會顯示確認訊息</p></div>
         </div>
       </div>
     </section>

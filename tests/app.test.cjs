@@ -13,7 +13,8 @@ function createApp() {
   const categoryNames = ['全部', '純茶', '奶茶', '果茶'];
   const categories = categoryNames.map(name => ({
     dataset: { category: name },
-    classList: { toggle() {} }
+    classList: { toggle() {} },
+    setAttribute(name, value) { if (name === 'aria-pressed') this.ariaPressed = value; }
   }));
   const elements = new Map();
   for (const selector of ['.category-tabs', '#drink-grid', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note']) {
@@ -53,7 +54,7 @@ function createApp() {
     const button = { dataset: { remove: key } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-remove]' ? button : null } });
   };
-  return { elements, add, category, changeQuantity, remove };
+  return { elements, add, category, changeQuantity, remove, categories };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -64,6 +65,9 @@ test('菜單分類會顯示對應飲品', () => {
   assert.equal((grid.innerHTML.match(/class="drink-card"/g) || []).length, 2);
   assert.match(grid.innerHTML, /日月奶茶/);
   assert.match(grid.innerHTML, /小山抹茶拿鐵/);
+  assert.match(grid.innerHTML, /aria-label="將 日月奶茶 加入購物車"/);
+  assert.equal(app.categories.find(item => item.dataset.category === '奶茶').ariaPressed, 'true');
+  assert.equal(app.categories.find(item => item.dataset.category === '全部').ariaPressed, 'false');
   assert.doesNotMatch(grid.innerHTML, /焙香烏龍/);
 });
 
@@ -82,6 +86,8 @@ test('客製飲品合併同選項、正確計價並支援數量和移除', () =>
   assert.equal(total.textContent, '$125');
   assert.match(rows.innerHTML, /\$70/);
   assert.match(rows.innerHTML, /\$55/);
+  assert.match(rows.innerHTML, /茉香綠茶 增加數量/);
+  assert.match(rows.innerHTML, /茉香綠茶 移除品項/);
 
   app.changeQuantity(regularKey, -1);
   assert.equal(headerCount.textContent, 2);
