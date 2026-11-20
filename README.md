@@ -16,7 +16,7 @@
 
 ## 發布
 
-GitHub Actions 會在推送到 `main` 時，將首頁與前端資產部署到 GitHub Pages。工作流程位於 `.github/workflows/deploy-pages.yml`。首次發布前，請在 repository 的 **Settings → Pages → Build and deployment → Source** 選 **GitHub Actions**。
+GitHub Actions 會在推送到 `main` 時，將首頁與前端資產部署到 GitHub Pages。工作流程位於 `.github/workflows/deploy-pages.yml`。此 repository 的 Pages source 已設定為 **GitHub Actions**。
 
 ## 檢查
 
@@ -35,3 +35,4 @@ GitHub Actions 會在推送到 `main` 時，將首頁與前端資產部署到 Gi
 ## 線上版本
 
 [開啟沏日點餐網站](https://310046.github.io/qiri-tea-shop/)
+

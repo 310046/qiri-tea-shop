@@ -16,7 +16,7 @@
 
 ### 目前狀態
 
-第一版前端已完成，包含菜單瀏覽、客製、購物車與模擬結帳，並補上操作說明。Node.js 語法檢查與 Git 空白檢查通過；因瀏覽器工具政策不允許開啟本機 `file:` 網址，未完成實際畫面預覽。公開 repository `310046/qiri-tea-shop` 已建立並推送到 `main`；GitHub Actions Pages workflow 執行成功，網站已上線於 https://310046.github.io/qiri-tea-shop/。線上 smoke test 確認能載入、加入飲料及完成模擬結帳；Node.js 回歸測試 3/3 通過。
+第一版前端已完成，包含菜單瀏覽、客製、購物車與模擬結帳，並補上操作說明。Node.js 語法檢查與 Git 空白檢查通過；本機 `file:` 預覽受瀏覽器工具政策限制，但已在線上部署網址完成核心操作 smoke test。桌機／手機視覺細節仍待檢視。公開 repository `310046/qiri-tea-shop` 已建立並推送到 `main`；GitHub Actions Pages workflow 執行成功，網站已上線於 https://310046.github.io/qiri-tea-shop/。線上 smoke test 確認能載入、加入飲料及完成模擬結帳；Node.js 回歸測試 3/3 通過。
 
 ### 已完成
 
@@ -44,4 +44,5 @@
 - [ ] 由使用者在待接手的 GitHub 頁面完成登入；接著建立公開 `310046/qiri-tea-shop` repository、設定 remote 並推送本地提交。
 - [x] 設定 Pages 來源為 GitHub Actions，確認 Actions 執行成功及網站可公開瀏覽。
 - [ ] 依評分規準完成展示講解與繳交。
+
 
