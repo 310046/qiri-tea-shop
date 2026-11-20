@@ -44,5 +44,3 @@
 - [ ] 由使用者在待接手的 GitHub 頁面完成登入；接著建立公開 `310046/qiri-tea-shop` repository、設定 remote 並推送本地提交。
 - [x] 設定 Pages 來源為 GitHub Actions，確認 Actions 執行成功及網站可公開瀏覽。
 - [ ] 依評分規準完成展示講解與繳交。
-
-

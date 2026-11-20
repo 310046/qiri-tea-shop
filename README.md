@@ -35,4 +35,3 @@ GitHub Actions 會在推送到 `main` 時，將首頁與前端資產部署到 Gi
 ## 線上版本
 
 [開啟沏日點餐網站](https://310046.github.io/qiri-tea-shop/)
-
