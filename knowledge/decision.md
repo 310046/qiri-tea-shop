@@ -24,3 +24,8 @@
 - 狀況：GitHub 連線可讀取帳號資料，但目前可用的 GitHub connector 沒有建立 repository 的操作；新開 GitHub 頁面要求登入，本機也沒有 `gh` CLI。
 - 推薦：使用者在待接手的 GitHub 登入頁自行完成登入，再由目前工作流程建立專案；不在聊天或文件中索取或保存密碼／驗證碼。
 - 處理：尚未建立遠端 repository；本地程式、Pages workflow 和文件已準備好。
+
+### 執行結果（2026-11-20）
+
+- 使用者完成 GitHub 登入後，已建立公開 `310046/qiri-tea-shop`，Pages source 設為 GitHub Actions。
+- `main` 推送觸發 workflow，首輪執行成功；網站網址為 https://310046.github.io/qiri-tea-shop/。
