@@ -34,7 +34,7 @@ function loadOrderHistory(){try{const saved=JSON.parse(localStorage.getItem('qir
 function renderOrderHistory(){
   const area=document.querySelector('#order-history-items');
   if(!orderHistory.length){area.innerHTML='<p class="history-empty">完成點單後會顯示在這裡。</p>';return;}
-  area.innerHTML=orderHistory.map(order=>`<article class="history-order"><div class="history-heading"><time datetime="${order.date}">${new Date(order.date).toLocaleString('zh-TW',{dateStyle:'short',timeStyle:'short'})}</time><strong>${money(order.total)}</strong></div><ul>${order.items.map(item=>`<li>${item.name}・${item.size} × ${item.quantity}</li>`).join('')}</ul></article>`).join('');
+  area.innerHTML=orderHistory.map((order,index)=>`<article class="history-order"><div class="history-heading"><time datetime="${order.date}">${new Date(order.date).toLocaleString('zh-TW',{dateStyle:'short',timeStyle:'short'})}</time><strong>${money(order.total)}</strong></div><ul>${order.items.map(item=>`<li>${item.name}・${item.size} × ${item.quantity}</li>`).join('')}</ul>${order.items.every(item=>item&&typeof item.key==='string'&&Number.isFinite(item.unitPrice))?`<button class="reorder-button" data-reorder="${index}" aria-label="重新加入第 ${index+1} 筆訂單">再點一次</button>`:''}</article>`).join('');
 }
 function renderCart(){
   const totalCount=cart.reduce((sum,item)=>sum+item.quantity,0);
@@ -68,10 +68,16 @@ document.querySelector('#cart-items').addEventListener('click',event=>{
   saveCart();
   renderCart();
 });
+document.querySelector('#order-history-items').addEventListener('click',event=>{
+  const button=event.target.closest('[data-reorder]');if(!button)return;
+  const order=orderHistory[Number(button.dataset.reorder)];if(!order)return;
+  order.items.forEach(item=>{const existing=cart.find(row=>row.key===item.key);if(existing)existing.quantity+=item.quantity;else cart.push({...item});});
+  saveCart();renderCart();document.querySelector('#checkout-note').textContent='已將這筆訂單重新加入購物車';
+});
 document.querySelector('#checkout').addEventListener('click',()=>{
   if(!cart.length)return;
   const count=cart.reduce((sum,item)=>sum+item.quantity,0);const total=cart.reduce((sum,item)=>sum+item.quantity*item.unitPrice,0);
-  orderHistory.unshift({date:new Date().toISOString(),total,items:cart.map(item=>({name:item.name,size:item.size,quantity:item.quantity}))});
+  orderHistory.unshift({date:new Date().toISOString(),total,items:cart.map(item=>({...item}))});
   orderHistory=orderHistory.slice(0,5);saveOrderHistory();renderOrderHistory();
   cart=[];saveCart();renderCart();document.querySelector('#checkout-note').textContent=`點單完成！共 ${count} 杯，合計 ${money(total)}。謝謝你來沏日 ☺`;
 });

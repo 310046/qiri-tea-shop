@@ -56,7 +56,11 @@ function createApp(storage = new Map()) {
     const button = { dataset: { remove: key } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-remove]' ? button : null } });
   };
-  return { elements, add, category, search, changeQuantity, remove, categories, storage };
+  const reorder = index => {
+    const button = { dataset: { reorder: String(index) } };
+    elements.get('#order-history-items').click({ target: { closest: selector => selector === '[data-reorder]' ? button : null } });
+  };
+  return { elements, add, category, search, changeQuantity, remove, reorder, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -141,4 +145,10 @@ test('完成訂單會保存品項摘要並在重新載入後顯示', () => {
   assert.match(history, /日月奶茶/);
   assert.match(history, /大杯 × 1/);
   assert.match(history, /\$75/);
+  assert.match(history, /再點一次/);
+  restored.add('milk', { size: '大杯', topping: '珍珠' });
+  restored.reorder(0);
+  assert.equal(restored.elements.get('#header-count').textContent, 2);
+  assert.equal(restored.elements.get('#cart-total').textContent, '$150');
+  assert.match(restored.elements.get('#cart-items').innerHTML, /日月奶茶・大杯/);
 });
