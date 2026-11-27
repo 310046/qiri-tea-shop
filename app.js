@@ -14,10 +14,13 @@ let orderHistory=[];
 let activeCategory='全部';
 let searchQuery='';
 let favoriteDrinkIds=new Set();
+let sortMode='recommended';
 const money=value=>`$${value}`;
 function renderMenu(){
   const query=searchQuery.trim().toLocaleLowerCase();
   const visible=drinks.filter(drink=>(activeCategory==='全部'||(activeCategory==='收藏'?favoriteDrinkIds.has(drink.id):drink.category===activeCategory))&&(!query||`${drink.name} ${drink.description} ${drink.category}`.toLocaleLowerCase().includes(query)));
+  if(sortMode==='price-low')visible.sort((a,b)=>a.price-b.price);
+  if(sortMode==='price-high')visible.sort((a,b)=>b.price-a.price);
   if(!visible.length){document.querySelector('#drink-grid').innerHTML='<p class="menu-empty">找不到符合的飲品，試試其他關鍵字。</p>';return;}
   document.querySelector('#drink-grid').innerHTML=visible.map(drink=>`<article class="drink-card" data-id="${drink.id}">
     <div class="drink-visual" style="--orb:${drink.orb};--tea:${drink.tea}"><span class="drink-tag">${drink.tag}</span><button class="favorite-button" data-favorite="${drink.id}" aria-label="${favoriteDrinkIds.has(drink.id)?'取消收藏':'收藏'} ${drink.name}" aria-pressed="${favoriteDrinkIds.has(drink.id)}">${favoriteDrinkIds.has(drink.id)?'♥':'♡'}</button><div class="mini-cup"></div><span class="mini-straw"></span></div>
@@ -52,6 +55,7 @@ function renderCart(){
 }
 document.querySelector('.category-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;activeCategory=button.dataset.category;document.querySelectorAll('.category').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});renderMenu();});
 document.querySelector('#menu-search').addEventListener('input',event=>{searchQuery=event.target.value;renderMenu();});
+document.querySelector('#menu-sort').addEventListener('change',event=>{sortMode=event.target.value;renderMenu();});
 document.querySelector('#drink-grid').addEventListener('click',event=>{
   const favorite=event.target.closest('[data-favorite]');
   if(favorite){const id=favorite.dataset.favorite;if(favoriteDrinkIds.has(id))favoriteDrinkIds.delete(id);else favoriteDrinkIds.add(id);saveFavorites();renderMenu();return;}

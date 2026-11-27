@@ -17,7 +17,7 @@ function createApp(storage = new Map()) {
     setAttribute(name, value) { if (name === 'aria-pressed') this.ariaPressed = value; }
   }));
   const elements = new Map();
-  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
+  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#menu-sort', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
     elements.set(selector, new Element());
   }
   const document = {
@@ -48,6 +48,7 @@ function createApp(storage = new Map()) {
     elements.get('.category-tabs').click({ target: { closest: selector => selector === '[data-category]' ? button : null } });
   };
   const search = value => elements.get('#menu-search').listeners.input({ target: { value } });
+  const sort = value => elements.get('#menu-sort').listeners.change({ target: { value } });
   const changeQuantity = (key, change) => {
     const button = { dataset: { quantity: key, change: String(change) } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-quantity]' ? button : null } });
@@ -64,7 +65,7 @@ function createApp(storage = new Map()) {
     const button = { dataset: { favorite: id } };
     elements.get('#drink-grid').click({ target: { closest: selector => selector === '[data-favorite]' ? button : null } });
   };
-  return { elements, add, category, search, changeQuantity, remove, reorder, favorite, categories, storage };
+  return { elements, add, category, search, sort, changeQuantity, remove, reorder, favorite, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -88,6 +89,21 @@ test('菜單可依飲品名稱、風味與分類搜尋，並顯示無結果提�
   assert.doesNotMatch(app.elements.get('#drink-grid').innerHTML, /莓好果茶/);
   app.search('不存在的飲料');
   assert.match(app.elements.get('#drink-grid').innerHTML, /找不到符合的飲品/);
+});
+
+test('菜單可依價格升降排序，並保留分類和搜尋篩選', () => {
+  const app = createApp();
+  app.sort('price-low');
+  const lowToHigh = app.elements.get('#drink-grid').innerHTML;
+  assert.ok(lowToHigh.indexOf('data-id="jasmine"') < lowToHigh.indexOf('data-id="oolong"'));
+  assert.ok(lowToHigh.indexOf('data-id="oolong"') < lowToHigh.indexOf('data-id="milk"'));
+  app.sort('price-high');
+  const highToLow = app.elements.get('#drink-grid').innerHTML;
+  assert.ok(highToLow.indexOf('data-id="matcha"') < highToLow.indexOf('data-id="fruit"'));
+  app.category('果茶');
+  app.search('莓果');
+  assert.match(app.elements.get('#drink-grid').innerHTML, /data-id="berry"/);
+  assert.doesNotMatch(app.elements.get('#drink-grid').innerHTML, /data-id="fruit"/);
 });
 
 test('收藏飲品會保存，並可用收藏分類快速篩選', () => {
