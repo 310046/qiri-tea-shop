@@ -33,6 +33,7 @@ GitHub Actions 會在推送到 `main` 時，將首頁與前端資產部署到 Gi
 - `app.js`：飲品資料、客製選項、購物車與點單互動。
 - `.github/workflows/deploy-pages.yml`：Pages 自動部署工作流程。
 - `knowledge/`：願景、路線圖、決策和可重用經驗。
+- `knowledge/demo-guide.md`：課堂展示流程與講解重點（待評分規準確認後調整）。
 
 這是前端課堂展示用模擬器；購物車和最近五筆訂單存在目前瀏覽器的 localStorage，不會送到伺服器，也不會同步到其他裝置。清除瀏覽器網站資料會一併清除這些資料。
 
