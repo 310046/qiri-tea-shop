@@ -13,13 +13,14 @@ let cart=[];
 let orderHistory=[];
 let activeCategory='全部';
 let searchQuery='';
+let favoriteDrinkIds=new Set();
 const money=value=>`$${value}`;
 function renderMenu(){
   const query=searchQuery.trim().toLocaleLowerCase();
-  const visible=drinks.filter(drink=>(activeCategory==='全部'||drink.category===activeCategory)&&(!query||`${drink.name} ${drink.description} ${drink.category}`.toLocaleLowerCase().includes(query)));
+  const visible=drinks.filter(drink=>(activeCategory==='全部'||(activeCategory==='收藏'?favoriteDrinkIds.has(drink.id):drink.category===activeCategory))&&(!query||`${drink.name} ${drink.description} ${drink.category}`.toLocaleLowerCase().includes(query)));
   if(!visible.length){document.querySelector('#drink-grid').innerHTML='<p class="menu-empty">找不到符合的飲品，試試其他關鍵字。</p>';return;}
   document.querySelector('#drink-grid').innerHTML=visible.map(drink=>`<article class="drink-card" data-id="${drink.id}">
-    <div class="drink-visual" style="--orb:${drink.orb};--tea:${drink.tea}"><span class="drink-tag">${drink.tag}</span><div class="mini-cup"></div><span class="mini-straw"></span></div>
+    <div class="drink-visual" style="--orb:${drink.orb};--tea:${drink.tea}"><span class="drink-tag">${drink.tag}</span><button class="favorite-button" data-favorite="${drink.id}" aria-label="${favoriteDrinkIds.has(drink.id)?'取消收藏':'收藏'} ${drink.name}" aria-pressed="${favoriteDrinkIds.has(drink.id)}">${favoriteDrinkIds.has(drink.id)?'♥':'♡'}</button><div class="mini-cup"></div><span class="mini-straw"></span></div>
     <div class="drink-info"><div><h3>${drink.name}</h3><p>${drink.description}</p></div><span class="price">${money(drink.price)}</span></div>
     <div class="customize"><label>甜度<select class="sugar">${sugarOptions.map(value=>`<option>${value}</option>`).join('')}</select></label>
     <label>冰塊<select class="ice">${iceOptions.map(value=>`<option>${value}</option>`).join('')}</select></label>
@@ -31,6 +32,8 @@ function saveCart(){try{localStorage.setItem('qiri-tea-shop-cart',JSON.stringify
 function loadCart(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-cart')||'[]');if(Array.isArray(saved))cart=saved.filter(item=>item&&typeof item.key==='string'&&typeof item.name==='string'&&Number.isInteger(item.quantity)&&item.quantity>0&&Number.isFinite(item.unitPrice)&&item.unitPrice>=0);}catch(error){cart=[];}}
 function saveOrderHistory(){try{localStorage.setItem('qiri-tea-shop-orders',JSON.stringify(orderHistory));}catch(error){/* Storage may be unavailable in private browsing. */}}
 function loadOrderHistory(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-orders')||'[]');if(Array.isArray(saved))orderHistory=saved.filter(order=>order&&typeof order.date==='string'&&Array.isArray(order.items)&&Number.isFinite(order.total)).slice(0,5);}catch(error){orderHistory=[];}}
+function saveFavorites(){try{localStorage.setItem('qiri-tea-shop-favorites',JSON.stringify([...favoriteDrinkIds]));}catch(error){/* Storage may be unavailable in private browsing. */}}
+function loadFavorites(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-favorites')||'[]');if(Array.isArray(saved))favoriteDrinkIds=new Set(saved.filter(id=>drinks.some(drink=>drink.id===id)));}catch(error){favoriteDrinkIds=new Set();}}
 function renderOrderHistory(){
   const area=document.querySelector('#order-history-items');
   if(!orderHistory.length){area.innerHTML='<p class="history-empty">完成點單後會顯示在這裡。</p>';return;}
@@ -50,6 +53,8 @@ function renderCart(){
 document.querySelector('.category-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;activeCategory=button.dataset.category;document.querySelectorAll('.category').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});renderMenu();});
 document.querySelector('#menu-search').addEventListener('input',event=>{searchQuery=event.target.value;renderMenu();});
 document.querySelector('#drink-grid').addEventListener('click',event=>{
+  const favorite=event.target.closest('[data-favorite]');
+  if(favorite){const id=favorite.dataset.favorite;if(favoriteDrinkIds.has(id))favoriteDrinkIds.delete(id);else favoriteDrinkIds.add(id);saveFavorites();renderMenu();return;}
   const button=event.target.closest('[data-add]');if(!button)return;
   const card=button.closest('.drink-card');const drink=drinks.find(item=>item.id===button.dataset.add);
   const topping=card.querySelector('.topping').selectedOptions[0];const size=card.querySelector('.size');
@@ -83,5 +88,6 @@ document.querySelector('#checkout').addEventListener('click',()=>{
 });
 loadCart();
 loadOrderHistory();
+loadFavorites();
 renderMenu();renderCart();
 renderOrderHistory();

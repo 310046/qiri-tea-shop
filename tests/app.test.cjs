@@ -10,7 +10,7 @@ function createApp(storage = new Map()) {
     addEventListener(type, handler) { this.listeners[type] = handler; }
     click(event) { this.listeners.click(event); }
   }
-  const categoryNames = ['全部', '純茶', '奶茶', '果茶'];
+  const categoryNames = ['全部', '純茶', '奶茶', '果茶', '收藏'];
   const categories = categoryNames.map(name => ({
     dataset: { category: name },
     classList: { toggle() {} },
@@ -60,7 +60,11 @@ function createApp(storage = new Map()) {
     const button = { dataset: { reorder: String(index) } };
     elements.get('#order-history-items').click({ target: { closest: selector => selector === '[data-reorder]' ? button : null } });
   };
-  return { elements, add, category, search, changeQuantity, remove, reorder, categories, storage };
+  const favorite = id => {
+    const button = { dataset: { favorite: id } };
+    elements.get('#drink-grid').click({ target: { closest: selector => selector === '[data-favorite]' ? button : null } });
+  };
+  return { elements, add, category, search, changeQuantity, remove, reorder, favorite, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -84,6 +88,21 @@ test('菜單可依飲品名稱、風味與分類搜尋，並顯示無結果提�
   assert.doesNotMatch(app.elements.get('#drink-grid').innerHTML, /莓好果茶/);
   app.search('不存在的飲料');
   assert.match(app.elements.get('#drink-grid').innerHTML, /找不到符合的飲品/);
+});
+
+test('收藏飲品會保存，並可用收藏分類快速篩選', () => {
+  const storage = new Map();
+  const first = createApp(storage);
+  first.favorite('milk');
+  assert.match(first.elements.get('#drink-grid').innerHTML, /aria-pressed="true"/);
+  const restored = createApp(storage);
+  restored.category('收藏');
+  const grid = restored.elements.get('#drink-grid').innerHTML;
+  assert.match(grid, /日月奶茶/);
+  assert.doesNotMatch(grid, /茉香綠茶/);
+  restored.favorite('milk');
+  assert.match(restored.elements.get('#drink-grid').innerHTML, /找不到符合的飲品/);
+  assert.deepEqual(JSON.parse(storage.get('qiri-tea-shop-favorites')), []);
 });
 
 test('購物車重新載入後保留，結帳後清除已保存內容', () => {
