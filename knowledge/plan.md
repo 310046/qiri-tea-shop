@@ -16,7 +16,7 @@
 
 ### 目前狀態
 
-第一版前端已完成，包含菜單瀏覽、客製、購物車與模擬結帳，並補上操作說明。近期新增菜單關鍵字搜尋、價格排序、localStorage 購物車保存、最近五筆訂單紀錄、一鍵再次點單與可保存的飲品收藏篩選；Node.js 語法檢查、8 項回歸測試與 Git 空白檢查通過。已於部署網站完成桌機、400px 手機版及線上再次點單流程檢視；手機版菜單、客製控制項和空／有品項購物車皆可正常瀏覽。公開 repository `310046/qiri-tea-shop` 已建立並推送到 `main`；Pages workflow 已修復 artifact 索引等待，最新部署成功，網站已上線於 https://310046.github.io/qiri-tea-shop/。
+第一版前端已完成，包含菜單瀏覽、客製、購物車與模擬結帳，並補上操作說明。近期新增菜單關鍵字搜尋、價格排序、localStorage 購物車保存、最近五筆訂單紀錄、一鍵再次點單與可保存的飲品收藏篩選；Node.js 語法檢查、8 項回歸測試與 Git 空白檢查通過。已於部署網站完成桌機、400px 手機版及線上再次點單流程檢視；手機版菜單、客製控制項和空／有品項購物車皆可正常瀏覽。公開 repository `310046/qiri-tea-shop` 已建立並推送到 `main`；Pages workflow 拆分 build/deploy jobs 後最新部署成功，網站已上線於 https://310046.github.io/qiri-tea-shop/。
 
 ### 已完成
 
@@ -52,6 +52,6 @@
 - [x] 準備 2–3 分鐘通用展示講解稿；課程評分規準取得後再依必備項目調整。
 - [x] 建立公開 `310046/qiri-tea-shop` repository、設定 remote 並推送到 `main`。
 - [x] 設定 Pages 來源為 GitHub Actions，確認 Actions 執行成功及網站可公開瀏覽。
-- [x] 修復 Pages artifact 查詢延遲與 rerun 重名風險；使用 attempt 專屬名稱、部署前等待 artifact API 可見，並確認最新 workflow 成功。
+- [x] 修復 Pages artifact 查詢延遲與 rerun 重名風險；使用 attempt 專屬名稱、build/deploy job 依賴與隔離權限，並確認最新 workflow 成功。
 - [ ] 依評分規準完成展示講解與繳交。
 
