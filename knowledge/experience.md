@@ -194,7 +194,8 @@
 
 - `upload-pages-artifact` 與 `deploy-pages` 都提供 artifact 名稱參數；設定時兩邊必須一致。
 - 對同一個 workflow run 重跑時，舊 attempt 的 artifact 可能仍存在。讓名稱包含 `${{ github.run_attempt }}`，並讓部署步驟選取同一名稱，可避免重跑時因找到多個 `github-pages` artifact 而失敗。
-- 上傳步驟完成後，GitHub Actions artifact 清單 API 偶爾尚未立即列出新產物；部署步驟若查詢過早會得到 0 個結果。部署前以該 run 的 artifact API 短暫輪詢本次名稱，出現一份後再部署。
+- 公開 REST artifact 清單可見，不代表 Pages deploy action 使用的 artifact 索引已同步；只輪詢 REST 清單仍可能讓部署查詢到 0 個結果。
+- 將上傳和部署拆成兩個 job，並以 `needs: build` 建立 job 邊界，符合官方建議的 build/deploy 模式，也給 artifact 服務完成索引的時間；以 attempt 專屬名稱並在 deploy job 指定相同名稱，隔離同一 run 的重試產物。
 - 診斷部署失敗時查看每個 attempt 的上傳與部署日誌，辨認是 artifact 不存在、重複或產物內容問題，再對症修正。
 
 ### 未來可套用範圍
