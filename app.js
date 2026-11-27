@@ -37,9 +37,26 @@ function renderMenu(){
     <button class="add-button" data-add="${drink.id}" aria-label="將 ${drink.name} 加入購物車"><span class="add-price">加入購物車 ${money(drink.price)}</span><span>＋</span></button></article>`).join('');
 }
 function saveCart(){try{localStorage.setItem('qiri-tea-shop-cart',JSON.stringify(cart));}catch(error){/* Storage may be unavailable in private browsing. */}}
-function loadCart(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-cart')||'[]');if(Array.isArray(saved))cart=saved.filter(item=>item&&typeof item.key==='string'&&typeof item.name==='string'&&Number.isInteger(item.quantity)&&item.quantity>0&&Number.isFinite(item.unitPrice)&&item.unitPrice>=0);}catch(error){cart=[];}}
+function normalizeSavedItem(item,keepHistoricalPrice=false){
+  if(!item||typeof item.key!=='string'||!Number.isSafeInteger(item.quantity)||item.quantity<1)return null;
+  const [drinkId,sugar,ice,size,topping]=item.key.split('|');
+  const drink=drinks.find(entry=>entry.id===drinkId);
+  const toppingOption=toppingOptions.find(entry=>entry.name===topping);
+  if(item.key.split('|').length!==5||!drink||!sugarOptions.includes(sugar)||!iceOptions.includes(ice)||!['中杯','大杯'].includes(size)||!toppingOption)return null;
+  const unitPrice=keepHistoricalPrice?item.unitPrice:drink.price+(size==='大杯'?10:0)+toppingOption.price;
+  if(!Number.isFinite(unitPrice)||unitPrice<0)return null;
+  return {key:item.key,name:drink.name,sugar,ice,size,topping,unitPrice,quantity:item.quantity};
+}
+function loadCart(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-cart')||'[]');if(Array.isArray(saved))cart=saved.map(item=>normalizeSavedItem(item)).filter(Boolean);}catch(error){cart=[];}}
 function saveOrderHistory(){try{localStorage.setItem('qiri-tea-shop-orders',JSON.stringify(orderHistory));}catch(error){/* Storage may be unavailable in private browsing. */}}
-function loadOrderHistory(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-orders')||'[]');if(Array.isArray(saved))orderHistory=saved.filter(order=>order&&typeof order.date==='string'&&Array.isArray(order.items)&&Number.isFinite(order.total)).slice(0,5);}catch(error){orderHistory=[];}}
+function loadOrderHistory(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-orders')||'[]');if(Array.isArray(saved))orderHistory=saved.map(order=>{
+  if(!order||typeof order.date!=='string'||!Number.isFinite(Date.parse(order.date))||!Array.isArray(order.items)||!order.items.length)return null;
+  const items=order.items.map(item=>normalizeSavedItem(item,true));
+  if(items.some(item=>!item))return null;
+  const total=items.reduce((sum,item)=>sum+item.unitPrice*item.quantity,0);
+  if(!Number.isFinite(total))return null;
+  return {date:new Date(order.date).toISOString(),items,total};
+}).filter(Boolean).slice(0,5);}catch(error){orderHistory=[];}}
 function saveFavorites(){try{localStorage.setItem('qiri-tea-shop-favorites',JSON.stringify([...favoriteDrinkIds]));}catch(error){/* Storage may be unavailable in private browsing. */}}
 function loadFavorites(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-favorites')||'[]');if(Array.isArray(saved))favoriteDrinkIds=new Set(saved.filter(id=>drinks.some(drink=>drink.id===id)));}catch(error){favoriteDrinkIds=new Set();}}
 function renderOrderHistory(){

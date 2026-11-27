@@ -255,3 +255,38 @@ test('清除訂單紀錄需確認，且不影響購物車和收藏', () => {
   canceled.clearHistory();
   assert.match(canceled.elements.get('#order-history-items').innerHTML, /茉香綠茶/);
 });
+
+test('載入本機資料時只採用有效選項並使用可信飲品名稱', () => {
+  const storage = new Map();
+  const key = 'milk|正常糖|正常冰|大杯|奶蓋';
+  storage.set('qiri-tea-shop-cart', JSON.stringify([
+    { key, name: '<img src=x onerror=alert(1)>', unitPrice: 1, quantity: 2 },
+    { key: 'unknown|正常糖|正常冰|中杯|不加配料', name: '不存在的飲料', unitPrice: 0, quantity: 1 }
+  ]));
+  storage.set('qiri-tea-shop-orders', JSON.stringify([
+    { date: '2026-11-27T10:00:00.000Z', total: 1, items: [{ key, name: '<svg onload=alert(1)>', unitPrice: 75, quantity: 1 }] },
+    { date: 'not-a-date', total: 0, items: [{ key, name: '錯誤日期紀錄', unitPrice: 0, quantity: 1 }] }
+  ]));
+  const app = createApp(storage);
+  assert.equal(app.elements.get('#header-count').textContent, 2);
+  assert.equal(app.elements.get('#cart-total').textContent, '$160');
+  assert.match(app.elements.get('#cart-items').innerHTML, /日月奶茶/);
+  assert.doesNotMatch(app.elements.get('#cart-items').innerHTML, /<img/);
+  assert.match(app.elements.get('#order-history-items').innerHTML, /日月奶茶/);
+  assert.doesNotMatch(app.elements.get('#order-history-items').innerHTML, /<svg/);
+  assert.match(app.elements.get('#order-history-items').innerHTML, /\$75/);
+  assert.doesNotMatch(app.elements.get('#order-history-items').innerHTML, /錯誤日期紀錄/);
+});
+
+test('損壞的本機 JSON 會安全回到空購物車和空歷史', () => {
+  const storage = new Map([
+    ['qiri-tea-shop-cart', '{broken'],
+    ['qiri-tea-shop-orders', 'not-json']
+  ]);
+  const app = createApp(storage);
+  assert.equal(app.elements.get('#header-count').textContent, 0);
+  assert.equal(app.elements.get('#cart-total').textContent, '$0');
+  assert.equal(app.elements.get('#checkout').disabled, true);
+  assert.equal(app.elements.get('#clear-history').disabled, true);
+  assert.match(app.elements.get('#order-history-items').innerHTML, /完成點單後會顯示在這裡/);
+});
