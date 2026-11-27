@@ -290,3 +290,19 @@ test('損壞的本機 JSON 會安全回到空購物車和空歷史', () => {
   assert.equal(app.elements.get('#clear-history').disabled, true);
   assert.match(app.elements.get('#order-history-items').innerHTML, /完成點單後會顯示在這裡/);
 });
+
+test('瀏覽器拒絕 localStorage 讀寫時仍可在目前頁面完成點單', () => {
+  const unavailableStorage = {
+    get() { throw new Error('Storage access denied'); },
+    set() { throw new Error('Storage quota unavailable'); }
+  };
+  const app = createApp(unavailableStorage);
+  app.add('milk', { size: '大杯' });
+  assert.equal(app.elements.get('#header-count').textContent, 1);
+  assert.equal(app.elements.get('#cart-total').textContent, '$65');
+  app.favorite('milk');
+  app.elements.get('#checkout').click();
+  assert.equal(app.elements.get('#header-count').textContent, 0);
+  assert.match(app.elements.get('#checkout-note').textContent, /點單完成/);
+  assert.match(app.elements.get('#order-history-items').innerHTML, /日月奶茶/);
+});
