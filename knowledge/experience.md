@@ -159,3 +159,16 @@
 
 - 課堂作品、原型或短期展示，在要求尚未完整時先準備一份可快速修訂的 demo 大綱。
 - 需要將操作步驟、技術選擇和已知限制簡潔說明給非開發者的作品展示。
+
+## 2026-11-27：讓 Pages 部署重跑使用獨立 artifact 名稱
+
+### 做法與觀察
+
+- `upload-pages-artifact` 與 `deploy-pages` 都提供 artifact 名稱參數；設定時兩邊必須一致。
+- 對同一個 workflow run 重跑時，舊 attempt 的 artifact 可能仍存在。讓名稱包含 `${{ github.run_attempt }}`，並讓部署步驟選取同一名稱，可避免重跑時因找到多個 `github-pages` artifact 而失敗。
+- 診斷部署失敗時查看每個 attempt 的上傳與部署日誌，辨認是 artifact 不存在、重複或產物內容問題，再對症修正。
+
+### 未來可套用範圍
+
+- 使用 GitHub Pages 官方 actions 部署靜態網站，且允許手動或自動重跑 workflow 的專案。
+- 同一 workflow 會為部署產生多個候選 artifact、需要明確選取本次執行產物的 CI/CD 流程。
