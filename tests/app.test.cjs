@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function createApp() {
+function createApp(storage = new Map()) {
   class Element {
     constructor() { this.listeners = {}; this.textContent = ''; this.innerHTML = ''; this.disabled = false; }
     addEventListener(type, handler) { this.listeners[type] = handler; }
@@ -17,14 +17,15 @@ function createApp() {
     setAttribute(name, value) { if (name === 'aria-pressed') this.ariaPressed = value; }
   }));
   const elements = new Map();
-  for (const selector of ['.category-tabs', '#drink-grid', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note']) {
+  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note']) {
     elements.set(selector, new Element());
   }
   const document = {
     querySelector(selector) { return elements.get(selector); },
     querySelectorAll(selector) { return selector === '.category' ? categories : []; }
   };
-  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), { document });
+  const localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), { document, localStorage });
 
   const add = (id, options = {}) => {
     const card = {
@@ -46,6 +47,7 @@ function createApp() {
     const button = categories.find(item => item.dataset.category === name);
     elements.get('.category-tabs').click({ target: { closest: selector => selector === '[data-category]' ? button : null } });
   };
+  const search = value => elements.get('#menu-search').listeners.input({ target: { value } });
   const changeQuantity = (key, change) => {
     const button = { dataset: { quantity: key, change: String(change) } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-quantity]' ? button : null } });
@@ -54,7 +56,7 @@ function createApp() {
     const button = { dataset: { remove: key } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-remove]' ? button : null } });
   };
-  return { elements, add, category, changeQuantity, remove, categories };
+  return { elements, add, category, search, changeQuantity, remove, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -69,6 +71,26 @@ test('菜單分類會顯示對應飲品', () => {
   assert.equal(app.categories.find(item => item.dataset.category === '奶茶').ariaPressed, 'true');
   assert.equal(app.categories.find(item => item.dataset.category === '全部').ariaPressed, 'false');
   assert.doesNotMatch(grid.innerHTML, /焙香烏龍/);
+});
+
+test('菜單可依飲品名稱、風味與分類搜尋，並顯示無結果提示', () => {
+  const app = createApp();
+  app.search('柚子');
+  assert.match(app.elements.get('#drink-grid').innerHTML, /柚香青茶/);
+  assert.doesNotMatch(app.elements.get('#drink-grid').innerHTML, /莓好果茶/);
+  app.search('不存在的飲料');
+  assert.match(app.elements.get('#drink-grid').innerHTML, /找不到符合的飲品/);
+});
+
+test('購物車重新載入後保留，結帳後清除已保存內容', () => {
+  const storage = new Map();
+  const first = createApp(storage);
+  first.add('milk', { size: '大杯' });
+  const restored = createApp(storage);
+  assert.equal(restored.elements.get('#header-count').textContent, 1);
+  assert.equal(restored.elements.get('#cart-total').textContent, '$65');
+  restored.elements.get('#checkout').click();
+  assert.equal(JSON.parse(storage.get('qiri-tea-shop-cart')).length, 0);
 });
 
 test('客製飲品合併同選項、正確計價並支援數量和移除', () => {
