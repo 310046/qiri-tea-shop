@@ -44,6 +44,7 @@ function saveFavorites(){try{localStorage.setItem('qiri-tea-shop-favorites',JSON
 function loadFavorites(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-favorites')||'[]');if(Array.isArray(saved))favoriteDrinkIds=new Set(saved.filter(id=>drinks.some(drink=>drink.id===id)));}catch(error){favoriteDrinkIds=new Set();}}
 function renderOrderHistory(){
   const area=document.querySelector('#order-history-items');
+  document.querySelector('#clear-history').disabled=orderHistory.length===0;
   if(!orderHistory.length){area.innerHTML='<p class="history-empty">完成點單後會顯示在這裡。</p>';return;}
   area.innerHTML=orderHistory.map((order,index)=>`<article class="history-order"><div class="history-heading"><time datetime="${order.date}">${new Date(order.date).toLocaleString('zh-TW',{dateStyle:'short',timeStyle:'short'})}</time><strong>${money(order.total)}</strong></div><ul>${order.items.map(item=>`<li>${item.name}・${item.size} × ${item.quantity}</li>`).join('')}</ul>${order.items.every(item=>item&&typeof item.key==='string'&&Number.isFinite(item.unitPrice))?`<button class="reorder-button" data-reorder="${index}" aria-label="重新加入第 ${index+1} 筆訂單">再點一次</button>`:''}</article>`).join('');
 }
@@ -92,6 +93,11 @@ document.querySelector('#clear-cart').addEventListener('click',()=>{
   if(!cart.length||!confirm('確定要清空購物車中的所有飲品嗎？'))return;
   cart=[];saveCart();renderCart();
   document.querySelector('#checkout-note').textContent='購物車已清空';
+});
+document.querySelector('#clear-history').addEventListener('click',()=>{
+  if(!orderHistory.length||!confirm('確定要刪除最近完成的訂單紀錄嗎？'))return;
+  orderHistory=[];saveOrderHistory();renderOrderHistory();
+  document.querySelector('#checkout-note').textContent='最近訂單紀錄已清除';
 });
 document.querySelector('#order-history-items').addEventListener('click',event=>{
   const button=event.target.closest('[data-reorder]');if(!button)return;

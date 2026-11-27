@@ -17,7 +17,7 @@ function createApp(storage = new Map(), confirmAnswer = true) {
     setAttribute(name, value) { if (name === 'aria-pressed') this.ariaPressed = value; }
   }));
   const elements = new Map();
-  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#menu-sort', '#cart-items', '#clear-cart', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
+  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#menu-sort', '#cart-items', '#clear-cart', '#clear-history', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
     elements.set(selector, new Element());
   }
   const document = {
@@ -67,6 +67,7 @@ function createApp(storage = new Map(), confirmAnswer = true) {
     return priceLabel.textContent;
   };
   const clearCart = () => elements.get('#clear-cart').click();
+  const clearHistory = () => elements.get('#clear-history').click();
   const changeQuantity = (key, change) => {
     const button = { dataset: { quantity: key, change: String(change) } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-quantity]' ? button : null } });
@@ -83,7 +84,7 @@ function createApp(storage = new Map(), confirmAnswer = true) {
     const button = { dataset: { favorite: id } };
     elements.get('#drink-grid').click({ target: { closest: selector => selector === '[data-favorite]' ? button : null } });
   };
-  return { elements, add, category, search, sort, previewPrice, clearCart, changeQuantity, remove, reorder, favorite, categories, storage };
+  return { elements, add, category, search, sort, previewPrice, clearCart, clearHistory, changeQuantity, remove, reorder, favorite, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -231,4 +232,26 @@ test('完成訂單會保存品項摘要並在重新載入後顯示', () => {
   assert.equal(restored.elements.get('#header-count').textContent, 2);
   assert.equal(restored.elements.get('#cart-total').textContent, '$150');
   assert.match(restored.elements.get('#cart-items').innerHTML, /日月奶茶・大杯/);
+});
+
+test('清除訂單紀錄需確認，且不影響購物車和收藏', () => {
+  const storage = new Map();
+  const app = createApp(storage);
+  app.add('jasmine');
+  app.favorite('milk');
+  app.elements.get('#checkout').click();
+  app.add('oolong');
+  assert.equal(app.elements.get('#clear-history').disabled, false);
+  app.clearHistory();
+  assert.equal(app.elements.get('#clear-history').disabled, true);
+  assert.match(app.elements.get('#order-history-items').innerHTML, /完成點單後會顯示在這裡/);
+  assert.equal(JSON.parse(storage.get('qiri-tea-shop-orders')).length, 0);
+  assert.equal(app.elements.get('#header-count').textContent, 1);
+  assert.deepEqual(JSON.parse(storage.get('qiri-tea-shop-favorites')), ['milk']);
+
+  const canceled = createApp(new Map(), false);
+  canceled.add('jasmine');
+  canceled.elements.get('#checkout').click();
+  canceled.clearHistory();
+  assert.match(canceled.elements.get('#order-history-items').innerHTML, /茉香綠茶/);
 });
