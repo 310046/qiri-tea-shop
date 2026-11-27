@@ -49,6 +49,7 @@ function renderCart(){
   document.querySelector('#cart-label').textContent=`${totalCount} 杯飲料`;
   document.querySelector('#cart-total').textContent=money(total);
   document.querySelector('#checkout').disabled=cart.length===0;
+  document.querySelector('#clear-cart').disabled=cart.length===0;
   const area=document.querySelector('#cart-items');
   if(!cart.length){area.innerHTML='<div class="empty-cart"><span>☕</span><p>購物車還空空的</p><small>先挑一杯喜歡的茶吧</small></div>';return;}
   area.innerHTML=cart.map(item=>`<div class="cart-row"><div><span class="cart-item-name">${item.name}・${item.size}</span><span class="cart-item-detail">${item.sugar} / ${item.ice} / ${item.topping}</span></div><span class="cart-item-price">${money(item.unitPrice*item.quantity)}</span><div class="quantity-control"><button data-quantity="${item.key}" data-change="-1" aria-label="${item.name} 減少數量">−</button><span>${item.quantity}</span><button data-quantity="${item.key}" data-change="1" aria-label="${item.name} 增加數量">＋</button><button class="remove-button" data-remove="${item.key}" aria-label="${item.name} 移除品項">×</button></div></div>`).join('');
@@ -76,6 +77,11 @@ document.querySelector('#cart-items').addEventListener('click',event=>{
   if(remove)cart=cart.filter(row=>row.key!==remove.dataset.remove);
   saveCart();
   renderCart();
+});
+document.querySelector('#clear-cart').addEventListener('click',()=>{
+  if(!cart.length||!confirm('確定要清空購物車中的所有飲品嗎？'))return;
+  cart=[];saveCart();renderCart();
+  document.querySelector('#checkout-note').textContent='購物車已清空';
 });
 document.querySelector('#order-history-items').addEventListener('click',event=>{
   const button=event.target.closest('[data-reorder]');if(!button)return;

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function createApp(storage = new Map()) {
+function createApp(storage = new Map(), confirmAnswer = true) {
   class Element {
     constructor() { this.listeners = {}; this.textContent = ''; this.innerHTML = ''; this.disabled = false; }
     addEventListener(type, handler) { this.listeners[type] = handler; }
@@ -17,7 +17,7 @@ function createApp(storage = new Map()) {
     setAttribute(name, value) { if (name === 'aria-pressed') this.ariaPressed = value; }
   }));
   const elements = new Map();
-  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#menu-sort', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
+  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#menu-sort', '#cart-items', '#clear-cart', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
     elements.set(selector, new Element());
   }
   const document = {
@@ -25,7 +25,7 @@ function createApp(storage = new Map()) {
     querySelectorAll(selector) { return selector === '.category' ? categories : []; }
   };
   const localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) };
-  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), { document, localStorage });
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8'), { document, localStorage, confirm: () => confirmAnswer });
 
   const add = (id, options = {}) => {
     const card = {
@@ -49,6 +49,7 @@ function createApp(storage = new Map()) {
   };
   const search = value => elements.get('#menu-search').listeners.input({ target: { value } });
   const sort = value => elements.get('#menu-sort').listeners.change({ target: { value } });
+  const clearCart = () => elements.get('#clear-cart').click();
   const changeQuantity = (key, change) => {
     const button = { dataset: { quantity: key, change: String(change) } };
     elements.get('#cart-items').click({ target: { closest: selector => selector === '[data-quantity]' ? button : null } });
@@ -65,7 +66,7 @@ function createApp(storage = new Map()) {
     const button = { dataset: { favorite: id } };
     elements.get('#drink-grid').click({ target: { closest: selector => selector === '[data-favorite]' ? button : null } });
   };
-  return { elements, add, category, search, sort, changeQuantity, remove, reorder, favorite, categories, storage };
+  return { elements, add, category, search, sort, clearCart, changeQuantity, remove, reorder, favorite, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -156,6 +157,24 @@ test('客製飲品合併同選項、正確計價並支援數量和移除', () =>
   app.remove(customKey);
   assert.equal(headerCount.textContent, 1);
   assert.equal(total.textContent, '$35');
+});
+
+test('清空購物車需確認，並同步更新本機資料與空狀態', () => {
+  const storage = new Map();
+  const app = createApp(storage);
+  app.add('milk');
+  app.clearCart();
+  assert.equal(app.elements.get('#header-count').textContent, 0);
+  assert.equal(app.elements.get('#cart-total').textContent, '$0');
+  assert.equal(app.elements.get('#checkout').disabled, true);
+  assert.equal(app.elements.get('#clear-cart').disabled, true);
+  assert.equal(JSON.parse(storage.get('qiri-tea-shop-cart')).length, 0);
+  assert.match(app.elements.get('#checkout-note').textContent, /購物車已清空/);
+
+  const canceled = createApp(new Map(), false);
+  canceled.add('jasmine');
+  canceled.clearCart();
+  assert.equal(canceled.elements.get('#header-count').textContent, 1);
 });
 
 test('確認點單後顯示摘要並清空購物車', () => {
