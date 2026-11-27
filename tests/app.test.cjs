@@ -49,6 +49,23 @@ function createApp(storage = new Map(), confirmAnswer = true) {
   };
   const search = value => elements.get('#menu-search').listeners.input({ target: { value } });
   const sort = value => elements.get('#menu-sort').listeners.change({ target: { value } });
+  const previewPrice = (id, options = {}) => {
+    const drink = { dataset: { id } };
+    const priceLabel = { textContent: '' };
+    const size = { value: options.size ?? '中杯' };
+    const topping = options.topping ?? '不加配料';
+    const price = topping === '奶蓋' ? 15 : topping === '不加配料' ? 0 : 10;
+    const card = {
+      dataset: drink.dataset,
+      querySelector(selector) {
+        if (selector === '.size') return size;
+        if (selector === '.topping') return { selectedOptions: [{ value: topping, dataset: { price: String(price) } }] };
+        if (selector === '.add-price') return priceLabel;
+      }
+    };
+    elements.get('#drink-grid').listeners.change({ target: { closest: selector => selector === '.drink-card' ? card : null } });
+    return priceLabel.textContent;
+  };
   const clearCart = () => elements.get('#clear-cart').click();
   const changeQuantity = (key, change) => {
     const button = { dataset: { quantity: key, change: String(change) } };
@@ -66,7 +83,7 @@ function createApp(storage = new Map(), confirmAnswer = true) {
     const button = { dataset: { favorite: id } };
     elements.get('#drink-grid').click({ target: { closest: selector => selector === '[data-favorite]' ? button : null } });
   };
-  return { elements, add, category, search, sort, clearCart, changeQuantity, remove, reorder, favorite, categories, storage };
+  return { elements, add, category, search, sort, previewPrice, clearCart, changeQuantity, remove, reorder, favorite, categories, storage };
 }
 
 test('菜單分類會顯示對應飲品', () => {
@@ -105,6 +122,15 @@ test('菜單可依價格升降排序，並保留分類和搜尋篩選', () => {
   app.search('莓果');
   assert.match(app.elements.get('#drink-grid').innerHTML, /data-id="berry"/);
   assert.doesNotMatch(app.elements.get('#drink-grid').innerHTML, /data-id="fruit"/);
+});
+
+test('客製杯型或配料時即時預覽正確價格', () => {
+  const app = createApp();
+  assert.match(app.elements.get('#drink-grid').innerHTML, /加入購物車 \$35/);
+  assert.equal(app.previewPrice('milk', { size: '大杯', topping: '奶蓋' }), '加入購物車 $80');
+  assert.equal(app.previewPrice('milk', { size: '大杯' }), '加入購物車 $65');
+  app.add('milk', { size: '大杯', topping: '奶蓋' });
+  assert.equal(app.elements.get('#cart-total').textContent, '$80');
 });
 
 test('收藏飲品會保存，並可用收藏分類快速篩選', () => {

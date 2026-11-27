@@ -16,6 +16,11 @@ let searchQuery='';
 let favoriteDrinkIds=new Set();
 let sortMode='recommended';
 const money=value=>`$${value}`;
+function customizedPrice(drink,card){
+  const size=card.querySelector('.size').value;
+  const topping=card.querySelector('.topping').selectedOptions[0];
+  return drink.price+(size==='大杯'?10:0)+Number(topping.dataset.price);
+}
 function renderMenu(){
   const query=searchQuery.trim().toLocaleLowerCase();
   const visible=drinks.filter(drink=>(activeCategory==='全部'||(activeCategory==='收藏'?favoriteDrinkIds.has(drink.id):drink.category===activeCategory))&&(!query||`${drink.name} ${drink.description} ${drink.category}`.toLocaleLowerCase().includes(query)));
@@ -29,7 +34,7 @@ function renderMenu(){
     <label>冰塊<select class="ice">${iceOptions.map(value=>`<option>${value}</option>`).join('')}</select></label>
     <label>杯型<select class="size"><option value="中杯">中杯　+$0</option><option value="大杯">大杯　+$10</option></select></label>
     <label>配料<select class="topping">${toppingOptions.map(item=>`<option value="${item.name}" data-price="${item.price}">${item.name}${item.price?`　+$${item.price}`:''}</option>`).join('')}</select></label></div>
-    <button class="add-button" data-add="${drink.id}" aria-label="將 ${drink.name} 加入購物車">加入購物車 <span>＋</span></button></article>`).join('');
+    <button class="add-button" data-add="${drink.id}" aria-label="將 ${drink.name} 加入購物車"><span class="add-price">加入購物車 ${money(drink.price)}</span><span>＋</span></button></article>`).join('');
 }
 function saveCart(){try{localStorage.setItem('qiri-tea-shop-cart',JSON.stringify(cart));}catch(error){/* Storage may be unavailable in private browsing. */}}
 function loadCart(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-cart')||'[]');if(Array.isArray(saved))cart=saved.filter(item=>item&&typeof item.key==='string'&&typeof item.name==='string'&&Number.isInteger(item.quantity)&&item.quantity>0&&Number.isFinite(item.unitPrice)&&item.unitPrice>=0);}catch(error){cart=[];}}
@@ -57,6 +62,11 @@ function renderCart(){
 document.querySelector('.category-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;activeCategory=button.dataset.category;document.querySelectorAll('.category').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});renderMenu();});
 document.querySelector('#menu-search').addEventListener('input',event=>{searchQuery=event.target.value;renderMenu();});
 document.querySelector('#menu-sort').addEventListener('change',event=>{sortMode=event.target.value;renderMenu();});
+document.querySelector('#drink-grid').addEventListener('change',event=>{
+  const card=event.target.closest('.drink-card');if(!card)return;
+  const drink=drinks.find(item=>item.id===card.dataset.id);if(!drink)return;
+  card.querySelector('.add-price').textContent=`加入購物車 ${money(customizedPrice(drink,card))}`;
+});
 document.querySelector('#drink-grid').addEventListener('click',event=>{
   const favorite=event.target.closest('[data-favorite]');
   if(favorite){const id=favorite.dataset.favorite;if(favoriteDrinkIds.has(id))favoriteDrinkIds.delete(id);else favoriteDrinkIds.add(id);saveFavorites();renderMenu();return;}
@@ -64,7 +74,7 @@ document.querySelector('#drink-grid').addEventListener('click',event=>{
   const card=button.closest('.drink-card');const drink=drinks.find(item=>item.id===button.dataset.add);
   const topping=card.querySelector('.topping').selectedOptions[0];const size=card.querySelector('.size');
   const options={sugar:card.querySelector('.sugar').value,ice:card.querySelector('.ice').value,size:size.value,topping:topping.value};
-  const unitPrice=drink.price+(size.value==='大杯'?10:0)+Number(topping.dataset.price);
+  const unitPrice=customizedPrice(drink,card);
   const key=[drink.id,...Object.values(options)].join('|');const existing=cart.find(item=>item.key===key);
   if(existing)existing.quantity++;else cart.push({key,name:drink.name,...options,unitPrice,quantity:1});
   saveCart();
