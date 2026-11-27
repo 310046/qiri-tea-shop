@@ -17,7 +17,7 @@ function createApp(storage = new Map()) {
     setAttribute(name, value) { if (name === 'aria-pressed') this.ariaPressed = value; }
   }));
   const elements = new Map();
-  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note']) {
+  for (const selector of ['.category-tabs', '#drink-grid', '#menu-search', '#cart-items', '#checkout', '#header-count', '#cart-label', '#cart-total', '#checkout-note', '#order-history-items']) {
     elements.set(selector, new Element());
   }
   const document = {
@@ -129,4 +129,16 @@ test('確認點單後顯示摘要並清空購物車', () => {
   assert.equal(app.elements.get('#cart-total').textContent, '$0');
   assert.equal(checkout.disabled, true);
   assert.match(app.elements.get('#checkout-note').textContent, /共 1 杯，合計 \$80/);
+});
+
+test('完成訂單會保存品項摘要並在重新載入後顯示', () => {
+  const storage = new Map();
+  const first = createApp(storage);
+  first.add('milk', { size: '大杯', topping: '珍珠' });
+  first.elements.get('#checkout').click();
+  const restored = createApp(storage);
+  const history = restored.elements.get('#order-history-items').innerHTML;
+  assert.match(history, /日月奶茶/);
+  assert.match(history, /大杯 × 1/);
+  assert.match(history, /\$75/);
 });

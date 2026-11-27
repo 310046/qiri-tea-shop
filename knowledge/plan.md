@@ -16,7 +16,7 @@
 
 ### 目前狀態
 
-第一版前端已完成，包含菜單瀏覽、客製、購物車與模擬結帳，並補上操作說明。這輪新增菜單關鍵字搜尋與 localStorage 購物車保存；Node.js 語法檢查、5 項回歸測試與 Git 空白檢查通過。公開 repository `310046/qiri-tea-shop` 已建立並推送到 `main`；GitHub Actions Pages workflow 執行成功，網站已上線於 https://310046.github.io/qiri-tea-shop/。手機尺寸仍待實際瀏覽器檢視。
+第一版前端已完成，包含菜單瀏覽、客製、購物車與模擬結帳，並補上操作說明。近期新增菜單關鍵字搜尋、localStorage 購物車保存與最近五筆訂單紀錄；Node.js 語法檢查、6 項回歸測試與 Git 空白檢查通過。公開 repository `310046/qiri-tea-shop` 已建立並推送到 `main`；GitHub Actions Pages workflow 執行成功，網站已上線於 https://310046.github.io/qiri-tea-shop/。手機尺寸仍待實際瀏覽器檢視。
 
 ### 已完成
 
@@ -44,6 +44,7 @@
 - [x] 加入購物車數量增減與移除作為範圍可控的擴充功能；折扣或訂單紀錄等其他擴充視評分要求再決定。
 - [x] 新增菜單關鍵字搜尋，可依飲品名稱、風味描述與分類篩選，並提供無結果提示。
 - [x] 新增購物車本機保存，重新載入後恢復內容，結帳時清除；README 已說明資料範圍及清除限制。
+- [x] 新增最近五筆完成訂單紀錄，顯示時間、飲品／杯型／數量與總額，並保存於本機。
 - [x] 建立公開 `310046/qiri-tea-shop` repository、設定 remote 並推送到 `main`。
 - [x] 設定 Pages 來源為 GitHub Actions，確認 Actions 執行成功及網站可公開瀏覽。
 - [ ] 依評分規準完成展示講解與繳交。

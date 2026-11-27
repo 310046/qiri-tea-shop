@@ -10,6 +10,7 @@ const sugarOptions=['正常糖','少糖','半糖','微糖','無糖'];
 const iceOptions=['正常冰','少冰','微冰','去冰','熱飲'];
 const toppingOptions=[{name:'不加配料',price:0},{name:'珍珠',price:10},{name:'椰果',price:10},{name:'茶凍',price:10},{name:'奶蓋',price:15}];
 let cart=[];
+let orderHistory=[];
 let activeCategory='全部';
 let searchQuery='';
 const money=value=>`$${value}`;
@@ -28,6 +29,13 @@ function renderMenu(){
 }
 function saveCart(){try{localStorage.setItem('qiri-tea-shop-cart',JSON.stringify(cart));}catch(error){/* Storage may be unavailable in private browsing. */}}
 function loadCart(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-cart')||'[]');if(Array.isArray(saved))cart=saved.filter(item=>item&&typeof item.key==='string'&&typeof item.name==='string'&&Number.isInteger(item.quantity)&&item.quantity>0&&Number.isFinite(item.unitPrice)&&item.unitPrice>=0);}catch(error){cart=[];}}
+function saveOrderHistory(){try{localStorage.setItem('qiri-tea-shop-orders',JSON.stringify(orderHistory));}catch(error){/* Storage may be unavailable in private browsing. */}}
+function loadOrderHistory(){try{const saved=JSON.parse(localStorage.getItem('qiri-tea-shop-orders')||'[]');if(Array.isArray(saved))orderHistory=saved.filter(order=>order&&typeof order.date==='string'&&Array.isArray(order.items)&&Number.isFinite(order.total)).slice(0,5);}catch(error){orderHistory=[];}}
+function renderOrderHistory(){
+  const area=document.querySelector('#order-history-items');
+  if(!orderHistory.length){area.innerHTML='<p class="history-empty">完成點單後會顯示在這裡。</p>';return;}
+  area.innerHTML=orderHistory.map(order=>`<article class="history-order"><div class="history-heading"><time datetime="${order.date}">${new Date(order.date).toLocaleString('zh-TW',{dateStyle:'short',timeStyle:'short'})}</time><strong>${money(order.total)}</strong></div><ul>${order.items.map(item=>`<li>${item.name}・${item.size} × ${item.quantity}</li>`).join('')}</ul></article>`).join('');
+}
 function renderCart(){
   const totalCount=cart.reduce((sum,item)=>sum+item.quantity,0);
   const total=cart.reduce((sum,item)=>sum+item.unitPrice*item.quantity,0);
@@ -63,7 +71,11 @@ document.querySelector('#cart-items').addEventListener('click',event=>{
 document.querySelector('#checkout').addEventListener('click',()=>{
   if(!cart.length)return;
   const count=cart.reduce((sum,item)=>sum+item.quantity,0);const total=cart.reduce((sum,item)=>sum+item.quantity*item.unitPrice,0);
+  orderHistory.unshift({date:new Date().toISOString(),total,items:cart.map(item=>({name:item.name,size:item.size,quantity:item.quantity}))});
+  orderHistory=orderHistory.slice(0,5);saveOrderHistory();renderOrderHistory();
   cart=[];saveCart();renderCart();document.querySelector('#checkout-note').textContent=`點單完成！共 ${count} 杯，合計 ${money(total)}。謝謝你來沏日 ☺`;
 });
 loadCart();
+loadOrderHistory();
 renderMenu();renderCart();
+renderOrderHistory();
